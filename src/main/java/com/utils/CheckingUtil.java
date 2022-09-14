@@ -39,20 +39,20 @@ public class CheckingUtil {
         int point = 0;
         while (iterator.hasNext()) {
             String temp = iterator.next().toString();
-            String after = "";
+            StringBuilder after = new StringBuilder();
             for (int i = 0; i < temp.length(); i++) {
                 char a = temp.charAt(i);
                 //只取中文
                 if (String.valueOf(a).matches("[\u4e00-\u9fa5]")) {
-                    after += a;
+                    after.append(a);
                 }
             }
-            if (resultMap.get(after) == null) {
+            if (resultMap.get(after.toString()) == null) {
                 ArrayList<Integer> list = new ArrayList<>();
                 list.add(point);
-                resultMap.put(after, list);
+                resultMap.put(after.toString(), list);
             }
-            List<Integer> tempList = resultMap.get(after);
+            List<Integer> tempList = resultMap.get(after.toString());
             //记录新位置
             tempList.add(point);
             point++;
