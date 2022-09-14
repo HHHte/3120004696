@@ -1,0 +1,198 @@
+Index: src/main/java/com/exception/FileException.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/exception/FileException.java b/src/main/java/com/exception/FileException.java
+new file mode 100644
+--- /dev/null	(date 1663075876383)
++++ b/src/main/java/com/exception/FileException.java	(date 1663075876383)
+@@ -0,0 +1,9 @@
++package com.exception;
++
++public class FileException extends Exception{
++
++    public FileException(String message) {
++        super(message);
++    }
++
++}
+Index: src/main/java/com/utils/IOUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/utils/IOUtil.java b/src/main/java/com/utils/IOUtil.java
+new file mode 100644
+--- /dev/null	(date 1663075876376)
++++ b/src/main/java/com/utils/IOUtil.java	(date 1663075876376)
+@@ -0,0 +1,110 @@
++package com.utils;
++
++import cn.hutool.core.io.file.FileReader;
++import cn.hutool.extra.tokenizer.Result;
++import cn.hutool.extra.tokenizer.TokenizerEngine;
++import cn.hutool.extra.tokenizer.Word;
++import cn.hutool.extra.tokenizer.engine.hanlp.HanLPEngine;
++import com.exception.FileException;
++
++import java.util.*;
++
++public class IOUtil {
++
++    /**
++     * 分词，记录文本
++     *
++     * @param path 文件路径
++     * @return 返回结果集
++     */
++    public static Map<String, List<Integer>> word(String path) {
++        Map<String, List<Integer>> resultMap = new TreeMap<>();
++        //初始化分词引擎
++        TokenizerEngine engine = new HanLPEngine();
++
++        //读取文件
++        try {
++            FileUtil.readFile(path);
++        } catch (FileException e) {
++            System.out.println(e.getMessage());
++            return null;
++        }
++
++        FileReader fileReader = new FileReader(path, "UTF-8");
++        String text = fileReader.readString();
++        Result result = engine.parse(text);
++
++        //解析文本
++        Iterator<Word> iterator = result.iterator();
++        int point = 0;
++        while (iterator.hasNext()) {
++            String temp = iterator.next().toString();
++            String after = "";
++            for (int i = 0; i < temp.length(); i++) {
++                char a = temp.charAt(i);
++                //只取中文
++                if (String.valueOf(a).matches("[\u4e00-\u9fa5]")) {
++                    after += a;
++                }
++            }
++            if (resultMap.get(after) == null) {
++                ArrayList<Integer> list = new ArrayList<>();
++                list.add(point);
++                resultMap.put(after, list);
++            }
++            List<Integer> tempList = resultMap.get(after);
++            //记录新位置
++            tempList.add(point);
++            point++;
++        }
++        return resultMap;
++    }
++
++    /**
++     * 采用余弦来查重
++     *
++     * @param firstMap  原文
++     * @param secondMap 抄袭文
++     * @return 返回结果
++     */
++    public static Double count(Map<String, List<Integer>> firstMap, Map<String, List<Integer>> secondMap) {
++        if (firstMap == null || secondMap == null) {
++            return null;
++        }
++
++        //计算了多少个词
++        int count = 0;
++        //余弦方程的上部
++        double equationUp;
++        //余弦方程的下部部分一
++        double equationDown1;
++        //余弦方程的下部部分二
++        double equationDown2;
++        //每一个词的相似度之和
++        double sum = 0;
++        for (String key : firstMap.keySet()) {
++            List<Integer> wordOrigin = firstMap.get(key);
++            List<Integer> wordCopy = secondMap.get(key);
++            if (wordCopy != null) {
++                equationUp = equationDown1 = equationDown2 = 0;
++                for (int i = 0; i < wordOrigin.size() && i < wordCopy.size(); i++) {
++                    Integer pointOrigin = wordOrigin.get(i);
++                    Integer pointCopy = wordCopy.get(i);
++                    //上部相乘
++                    equationUp += pointCopy * pointOrigin;
++                    //下部相乘，后开方
++                    equationDown1 += pointCopy * pointOrigin;
++                    equationDown2 += pointCopy * pointOrigin;
++                }
++                double equationDown = Math.sqrt(equationDown1) * Math.sqrt(equationDown2);
++                if (equationDown != 0) {
++                    sum += equationUp / equationDown;
++                }
++            }
++            count++;
++        }
++
++        return sum / count;
++    }
++
++}
+Index: src/main/java/com/utils/FileUtil.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/utils/FileUtil.java b/src/main/java/com/utils/FileUtil.java
+new file mode 100644
+--- /dev/null	(date 1663073239840)
++++ b/src/main/java/com/utils/FileUtil.java	(date 1663073239840)
+@@ -0,0 +1,49 @@
++package com.utils;
++
++import com.exception.FileException;
++
++import java.io.FileReader;
++import java.io.FileWriter;
++import java.io.IOException;
++
++public class FileUtil {
++    /**
++     * 读取路径
++     *
++     * @param filepath 文件路径
++     * @return 结果
++     * @throws FileException 异常
++     */
++    public static String readFile(String filepath) throws FileException {
++        if (filepath == null || "".equals(filepath)) {
++            throw new FileException("文件路径为空");
++        }
++        FileReader fileReader;
++        try {
++            fileReader = new FileReader(filepath);
++        } catch (Exception e) {
++            throw new FileException("文件为空");
++        }
++        String result = String.valueOf(fileReader);
++        System.out.println(result);
++        return result;
++    }
++
++    /**
++     * 输出结果
++     *
++     * @param filepath 文件路径
++     * @param content  结果
++     * @return true
++     * @throws IOException 异常
++     */
++    public static Boolean writeFile(String filepath, String content) throws IOException {
++        FileWriter writer = new FileWriter(filepath);
++        try {
++            writer.write(content);
++        } catch (Exception e) {
++            System.out.println("答案文件输出异常，结果为：" + content);
++        }
++        return true;
++    }
++}
