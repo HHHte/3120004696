@@ -39,9 +39,9 @@ public class FileUtil {
      */
     public static void writeFile(String filepath, String content) throws IOException {
         //指定文件
-        File f = new File(filepath);
+        File file = new File(filepath);
         //创建输出流fos并以f为参数
-        FileOutputStream fos = new FileOutputStream(f);
+        FileOutputStream fos = new FileOutputStream(file);
         //创建字符输出流对象osw并以fos为参数
         OutputStreamWriter osw = new OutputStreamWriter(fos);
         //创建一个带缓冲的输出流对象bw，并以osw为参数

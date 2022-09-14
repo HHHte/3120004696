@@ -1,6 +1,6 @@
 
 import com.utils.FileUtil;
-import com.utils.IOUtil;
+import com.utils.CheckingUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +13,9 @@ public class Main {
         String file1 = args[0];
         //file2为抄袭文件路径
         String file2 = args[1];
-        Map<String, List<Integer>> stringListMap = IOUtil.word(file1);
-        Map<String, List<Integer>> stringListMap2 = IOUtil.word(file2);
-        Double aDouble = IOUtil.count(stringListMap, stringListMap2);
+        Map<String, List<Integer>> stringListMap = CheckingUtil.getTxt(file1);
+        Map<String, List<Integer>> stringListMap2 = CheckingUtil.getTxt(file2);
+        Double aDouble = CheckingUtil.duplicationChecking(stringListMap, stringListMap2);
         System.out.println(aDouble);
         //args[2]为输出文件路径
         FileUtil.writeFile(args[2], String.valueOf(aDouble));

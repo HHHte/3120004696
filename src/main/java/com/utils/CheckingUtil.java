@@ -9,7 +9,7 @@ import com.exception.FileException;
 
 import java.util.*;
 
-public class IOUtil {
+public class CheckingUtil {
 
     /**
      * 分词，记录文本
@@ -17,7 +17,7 @@ public class IOUtil {
      * @param path 文件路径
      * @return 返回结果集
      */
-    public static Map<String, List<Integer>> word(String path) {
+    public static Map<String, List<Integer>> getTxt(String path) {
         Map<String, List<Integer>> resultMap = new TreeMap<>();
         //初始化分词引擎
         TokenizerEngine engine = new HanLPEngine();
@@ -67,11 +67,10 @@ public class IOUtil {
      * @param secondMap 抄袭文
      * @return 返回结果
      */
-    public static Double count(Map<String, List<Integer>> firstMap, Map<String, List<Integer>> secondMap) {
+    public static Double duplicationChecking(Map<String, List<Integer>> firstMap, Map<String, List<Integer>> secondMap) {
         if (firstMap == null || secondMap == null) {
             return null;
         }
-
         //计算了多少个词
         int count = 0;
         //余弦方程的上部
@@ -103,7 +102,6 @@ public class IOUtil {
             }
             count++;
         }
-
         return sum / count;
     }
 
